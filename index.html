@@ -10,14 +10,74 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body>
+<body class="bg-slate-50">
     <div id="root"></div>
     <script type="text/babel">
-        // PASTE THE ENTIRE JAVASCRIPT CODE I GAVE YOU EARLIER HERE
-        // (The part starting from "const INITIAL_DATA = ..." until the end of the App function)
-        
         const { useState, useEffect, useMemo } = React;
-        // ... (I will provide the condensed script below if you need it)
+        const { BookOpen, CheckCircle, Circle, TrendingUp, Activity, RotateCcw } = lucide;
+
+        const INITIAL_DATA = {
+            Physics: [
+                { id: 'p1', name: 'Units & Measurements', completed: false },
+                { id: 'p2', name: 'Kinematics', completed: false },
+                { id: 'p3', name: 'Laws of Motion', completed: false }
+            ],
+            Chemistry: [
+                { id: 'c1', name: 'Some Basic Concepts', completed: false },
+                { id: 'c12', name: 'Organic Chem (GOC)', completed: false }
+            ],
+            Maths: [
+                { id: 'm4', name: 'Matrices & Determinants', completed: false },
+                { id: 'm16', name: 'Conic Sections', completed: false }
+            ]
+        };
+
+        function App() {
+            const [activeTab, setActiveTab] = useState('Physics');
+            const [data, setData] = useState(() => {
+                const saved = localStorage.getItem('jee-tracker-v1');
+                return saved ? JSON.parse(saved) : INITIAL_DATA;
+            });
+
+            useEffect(() => {
+                localStorage.setItem('jee-tracker-v1', JSON.stringify(data));
+                lucide.createIcons();
+            }, [data, activeTab]);
+
+            const toggle = (id) => {
+                setData(prev => ({
+                    ...prev,
+                    [activeTab]: prev[activeTab].map(ch => ch.id === id ? {...ch, completed: !ch.completed} : ch)
+                }));
+            };
+
+            return (
+                <div className="max-w-xl mx-auto p-6">
+                    <h1 className="text-2xl font-bold text-indigo-600 mb-6 flex items-center gap-2">
+                        <BookOpen /> JEE Progress Tracker
+                    </h1>
+                    <div className="flex gap-2 mb-6">
+                        {Object.keys(data).map(sub => (
+                            <button key={sub} onClick={() => setActiveTab(sub)} 
+                                className={`px-4 py-2 rounded-lg font-bold ${activeTab === sub ? 'bg-indigo-600 text-white' : 'bg-white border'}`}>
+                                {sub}
+                            </button>
+                        ))}
+                    </div>
+                    <div className="space-y-3">
+                        {data[activeTab].map(ch => (
+                            <div key={ch.id} onClick={() => toggle(ch.id)} className="bg-white p-4 rounded-xl border flex items-center gap-4 cursor-pointer">
+                                {ch.completed ? <CheckCircle className="text-emerald-500" /> : <Circle className="text-slate-300" />}
+                                <span className={ch.completed ? 'line-through text-slate-400' : ''}>{ch.name}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
     </script>
 </body>
 </html>
